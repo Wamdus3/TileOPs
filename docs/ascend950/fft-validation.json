@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "operator": "FFTC2CFwdOp",
+  "base_commit": "b84f999c9ec5d375bcedb62b44d79863f830924a",
+  "source_snapshot": {
+    "repository": "https://github.com/Wamdus3/tilelang",
+    "infrastructure_commit": "da3abfff5aa1cef7a11b1d4736b7735f455d3ebe",
+    "artifact_path": "output/fft-flow-merged-20261027/source/solution.py",
+    "artifact_tracked_in_commit": false,
+    "sha256": "4f0de99e01b745fdeceb92775e3edfb79f6836d6f2e08b76c22158533c75a615"
+  },
+  "migration_source_sha256": "3ecb11aa6ebb171159d1e15035606a8c6a3af6c94616bd44061f9b4cf9a4e6d4",
+  "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+  "public_api_device_correctness": "NOT_RUN",
+  "official_runtime_compatibility": "PENDING",
+  "bmm_environment_receipt": "NOT_RUN_IN_REQUIRED_RUNTIME",
+  "performance_acceptance": "PENDING",
+  "complete_ten_case_acceptance": false,
+  "cpu_checks": {
+    "status": "passed",
+    "steps": [
+      {
+        "name": "manifest",
+        "exit_code": 0
+      },
+      {
+        "name": "contracts",
+        "exit_code": 0,
+        "passed": 270
+      },
+      {
+        "name": "benchmark-contracts",
+        "exit_code": 0,
+        "passed": 97
+      },
+      {
+        "name": "packaging-coverage",
+        "exit_code": 0
+      }
+    ],
+    "python": "3.11.15 | packaged by conda-forge | (main, Aug 11 2026, 10:26:29) [GCC 14.4.0]",
+    "torch": "2.14.1+cpu",
+    "tilelang": "local development checkout; not the official 0.1.15 wheel"
+  },
+  "lowering_vendor_build": {
+    "scope": "development toolchain; not device execution",
+    "passed": 8,
+    "blocked": 2,
+    "target": "dav-3510",
+    "compiler_sha256": "7b53608fd45566047c262b86c57ae1a4093f38411492d80160b710ab401bdc1f",
+    "core_count_for_offline_build": 72
+  },
+  "fp64_probe": {
+    "vendor_returncode": 1,
+    "diagnostic": "double precision operation is not allowed in aicore function",
+    "scope": "local CANN 9.2.0 development compiler only",
+    "device_execution": "NOT_RUN"
+  },
+  "synchronization_change": {
+    "rule": "VF width is the largest power-of-two divisor of the butterfly group count, capped at 256",
+    "five_row_packet_threads": 128,
+    "device_validation": "PENDING"
+  },
+  "tests": {
+    "base_nodes": 23,
+    "head_nodes": 27,
+    "delta": 4,
+    "purposes": [
+      "strided FFT axis",
+      "partial row packet",
+      "odd packet VF synchronization",
+      "complex128 refusal before compilation"
+    ],
+    "device_execution": "NOT_RUN"
+  },
+  "cases": [
+    {
+      "case_id": "latency-4k-complex64",
+      "shape": [
+        4096
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "530265b74c73054e23c08d23a815047a81536d0d1b968e541bf9cc0d8750f4ec",
+      "aibin_sha256": "063ec87a45433aa36f96f687f299cb87280e93ee81b56b9fcc0fc3bbc4149f35",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "throughput-4k-complex64",
+      "shape": [
+        64,
+        4096
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "285e845344b0b8efd4be203a17f1247742234f652ef87305198d0d082fbb1e64",
+      "aibin_sha256": "655198da128bcba569b4fdad2d3add2890117b64c10bab25fdf1ff695cab8773",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "throughput-4k-complex128",
+      "shape": [
+        64,
+        4096
+      ],
+      "dtype": "complex128",
+      "numerical_policy": {
+        "rtol": 1e-08,
+        "atol": 1e-08,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "BLOCKED_FP64",
+      "public_api_device_correctness": "BLOCKED_NO_FP64_IMPLEMENTATION",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "longconv-16k-complex64",
+      "shape": [
+        64,
+        16384
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "dbc29d308e0a15b44e7d5b6f4c7b7208f6c6de7166b690ba03b93fbcea400520",
+      "aibin_sha256": "17cfa92716de00e517c838d91995b3f69cd57f0367d4c6fd174f53791dfb645c",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "longconv-64k-complex64",
+      "shape": [
+        8,
+        65536
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0015,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "c97358d9f7ce26a4eeda5fd02af38a7ba3622449730986be2e5ce5472f429919",
+      "aibin_sha256": "0f172bff517c17623ced0974fde31a24c15dc17981b06dd8fe732b8474586f2f",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "spectrogram-1k-complex64",
+      "shape": [
+        256,
+        1024
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "a91e71411aa89879ea90fbf58cb4a4bdf45a42cf21298828b75343ca94feb6e8",
+      "aibin_sha256": "8b53dd59ca7d99c12769a7d387b65459d9dccdbb1793721cc17c4ed1a1a741ba",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "fnet-512-complex64",
+      "shape": [
+        4096,
+        512
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "1bc64ef934a31c1241e2815a1de482e1f139bcdecc7d718e40087970b5fff397",
+      "aibin_sha256": "bba7aa9c1a398b08ec90e0c9a42585bb764e6a97c550072469bcf15ab3b54029",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "shortconv-64-complex64",
+      "shape": [
+        65536,
+        64
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "4aa2e8f060e624041d349b75dca0d01811a877f42962c771b0b4da1b98f20e4f",
+      "aibin_sha256": "68ab8fac8875250db9494b863370e4ff3462daebc091a9b2e6815508ac6b3b31",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "scientific-1m-complex128",
+      "shape": [
+        4,
+        1048576
+      ],
+      "dtype": "complex128",
+      "numerical_policy": {
+        "rtol": 1e-08,
+        "atol": 2e-11,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "BLOCKED_FP64",
+      "public_api_device_correctness": "BLOCKED_NO_FP64_IMPLEMENTATION",
+      "performance_acceptance": "PENDING"
+    },
+    {
+      "case_id": "spectrogram-1k-b300-complex64",
+      "shape": [
+        300,
+        1024
+      ],
+      "dtype": "complex64",
+      "numerical_policy": {
+        "rtol": 0.0001,
+        "atol": 0.0001,
+        "controls": [],
+        "normalized": null,
+        "kind": "exact"
+      },
+      "public_contract_sha256": "d9e96b17e1d17eaa7bdd3a47623bba9ddcca8dfce38f7c553cb5fdefdd8d77a5",
+      "status": "LOWER_AND_VENDOR_BUILD_PASS",
+      "asc_sha256": "9ec22519921d360543656bcd5928dd532dc54cf89cf31065f490cb6b852a3867",
+      "aibin_sha256": "9bc6ca0bc6bee38019ca97b41995ac864bdb8ff95360a29a8b416ee47f449daa",
+      "public_api_device_correctness": "NOT_RUN",
+      "performance_acceptance": "PENDING"
+    }
+  ],
+  "external_source_experiment": {
+    "validation_sha256": "95ed242a9257c984b3bd894bf9afd0e3680968ec32154709b5a55bce3a2c6b44",
+    "comparison_sha256": "81846b3576921ff54ec87c5b562df08cfffd19f2ef1550e9ea0095e1cfa2d80c",
+    "calls_passed": 96,
+    "scope": "pre-migration split-kernel experiment with a different tolerance and timing protocol; not TileOPs acceptance"
+  },
+  "compiled_source_snapshot_sha256": "433363c8e05f01e924a4960bec8f4afb0513ff6f1516f4eadc199546d4913b9c",
+  "post_build_source_change": {
+    "kind": "inline extern-target justification comments and formatter layout only",
+    "ast_identical": true,
+    "scalar_fma_calls": 53,
+    "reason": "current Ascend dialect has no scalar FMA intrinsic; packed fma2 is not a replacement"
+  }
+}

@@ -153,3 +153,36 @@ def test_tune_configures_every_kernel_of_a_four_step_plan(monkeypatch: pytest.Mo
 
     workload = FFTWorkload(x.shape[-1], x.dtype)
     compare_outputs(got, workload.ref_program(x), workload.verification(x))
+
+
+@pytest.mark.smoke
+def test_fft_strided_input() -> None:
+    """A noncontiguous transformed axis is materialized without changing its order."""
+    (wide,) = FFTTest(128, torch.complex64, batch_shape=(3,)).gen_inputs()
+    x = wide[..., ::2]
+    FFTTest(64, torch.complex64, batch_shape=(3,)).check(FFTC2CFwdOp(), x)
+
+
+@pytest.mark.smoke
+def test_fft_partial_row_packet() -> None:
+    """The final packed batch includes one valid row and preserves every output."""
+    test = FFTTest(64, torch.complex64, batch_shape=(65,))
+    test.check(FFTC2CFwdOp(), *test.gen_inputs())
+
+
+@pytest.mark.smoke
+def test_fft_partial_vf_group() -> None:
+    """An odd row packet keeps inter-stage synchronization valid for every row."""
+    test = FFTTest(1024, torch.complex64, batch_shape=(289,))
+    test.check(FFTC2CFwdOp(), *test.gen_inputs())
+
+
+@pytest.mark.smoke
+def test_fft_ascend_complex128_coverage_gap() -> None:
+    """Ascend has no FP64 FFT path and must refuse before building an FP32 substitute."""
+    if run_device().type != "npu":
+        pytest.skip("requires the Ascend backend")
+    with pytest.raises(ValueError, match="FP64"):
+        FFTC2CFwdOp().key_for(
+            "fft_c2c", FFTC2CCall(n=4096, dtype=torch.complex128, device=run_device())
+        )
