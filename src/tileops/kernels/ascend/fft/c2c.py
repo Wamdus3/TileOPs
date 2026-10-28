@@ -610,39 +610,40 @@ def _fft_prim_func(batch: int, n: int, vector_cores: int):
                                 a_imag[k] = T.if_then_else(
                                     row < batch, imag[row, source], T.float32(0)
                                 )
-                            for _first_group in T.unroll(min(1, local_stages // 3)):
+                            # Omit absent stages before tracing their index arithmetic.
+                            if local_stages >= 3:
                                 for k in T.Parallel(pack * tile // 8):
                                     row_base = (k // (tile // 8)) * tile
                                     group = k % (tile // 8)
                                     fused_first_triple(a_real, a_imag, row_base + 8 * group)
-                            for triple_stage in T.unroll(
-                                min(1, local_stages // 3), local_stages // 3
-                            ):
-                                half = 1 << (3 * triple_stage)
-                                for k in T.Parallel(pack * tile // 8):
-                                    row_base = (k // (tile // 8)) * tile
-                                    group = k % (tile // 8)
-                                    j = group % half
-                                    low = row_base + (group // half) * (8 * half) + j
-                                    fused_triple(a_real, a_imag, wr_table, wi_table, low, half)
-                            for tail_stage in T.unroll((local_stages // 3) * 3, local_stages):
-                                half = 1 << tail_stage
-                                for k in T.Parallel(pack * tile // 2):
-                                    row_base = (k // (tile // 2)) * tile
-                                    group = k % (tile // 2)
-                                    j = group % half
-                                    low = row_base + (group // half) * (2 * half) + j
-                                    twiddle = j * (tile // (2 * half))
-                                    butterfly(
-                                        a_real,
-                                        a_imag,
-                                        a_real,
-                                        a_imag,
-                                        low,
-                                        low + half,
-                                        wr_table[twiddle],
-                                        wi_table[twiddle],
-                                    )
+                            if local_stages >= 6:
+                                for triple_stage in T.unroll(1, local_stages // 3):
+                                    half = 1 << (3 * triple_stage)
+                                    for k in T.Parallel(pack * tile // 8):
+                                        row_base = (k // (tile // 8)) * tile
+                                        group = k % (tile // 8)
+                                        j = group % half
+                                        low = row_base + (group // half) * (8 * half) + j
+                                        fused_triple(a_real, a_imag, wr_table, wi_table, low, half)
+                            if local_stages % 3:
+                                for tail_stage in T.unroll((local_stages // 3) * 3, local_stages):
+                                    half = 1 << tail_stage
+                                    for k in T.Parallel(pack * tile // 2):
+                                        row_base = (k // (tile // 2)) * tile
+                                        group = k % (tile // 2)
+                                        j = group % half
+                                        low = row_base + (group // half) * (2 * half) + j
+                                        twiddle = j * (tile // (2 * half))
+                                        butterfly(
+                                            a_real,
+                                            a_imag,
+                                            a_real,
+                                            a_imag,
+                                            low,
+                                            low + half,
+                                            wr_table[twiddle],
+                                            wi_table[twiddle],
+                                        )
                             if n <= tile:
                                 for k in T.Parallel(pack * tile):
                                     row = first_row + k // tile
@@ -802,8 +803,8 @@ def _make_fft_kernel(batch: int, n: int, vector_cores: int, device_index: int):
 class AscendFFTC2CKernel(Kernel, FFTC2CFwdInterface):
     """Forward complex64 FFT with one arithmetic flow on Ascend vector cores.
 
-    Complex128 is refused before compilation: this implementation has no FP64
-    arithmetic path. Length one is the public op's out-of-place identity.
+    FP64/complex128 is unsupported by this implementation and refused before
+    compilation. Length one is the public op's out-of-place identity.
     """
 
     devices = frozenset({"npu"})
@@ -811,7 +812,7 @@ class AscendFFTC2CKernel(Kernel, FFTC2CFwdInterface):
     @classmethod
     def refusal(cls, call: FFTC2CCall) -> str | None:
         if call.dtype != torch.complex64:
-            return "complex128 requires FP64 arithmetic; this Ascend kernel serves complex64 only"
+            return "FP64/complex128 is unsupported by this Ascend kernel; use complex64"
         if call.n < 2 or call.n > 65536 or call.n & (call.n - 1):
             return "requires a power-of-two length in [2, 65536]"
         return super().refusal(call)
